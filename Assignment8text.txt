@@ -1,0 +1,21 @@
+/////////////////Linux/////////////
+
+cd /usr/local/datasets
+
+
+
+mongoimport --username="${MONGO_USER}" --password="${MONGO_PASS}" --port=${MONGO_PORT} --host=${MONGO_HOST} --db=companies --collection research --authenticationDatabase admin --drop ./companies.json
+
+///////////////////MongoDb///////////////
+
+use companies
+
+db.research.find({"name" : "AdventNet"})
+
+db.research.find({"founded_year" : 1996},{"name" : 1}).limit(10)
+
+db.research.find({"founded_year": {$gte:2010}}, {"_id": 0, "name": 1}).limit(20).sort({"name":1})
+
+db.research.find({$or: [{"offices.state_code": "CA"}, {"offices.state_code": "TX"}]}, {"_id": 0, "name": 1, "number_of_employees": 1}).sort({"number_of_employees": -1}).limit(20)
+
+db.research.aggregate([{$unwind:"$offices"},{$match: {"offices.country_code" : "USA"}}, {$group: {_id: "$offices.state_code", offices: {$count:{}}}},{$sort: {_id: 1}}])
